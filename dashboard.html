@@ -1,0 +1,151 @@
+<!--
+  Archivo: dashboard.html
+  Versión: 1.0.2
+  Fecha: 01-abr-2025
+  Descripción: Formulario para filtrar datos en el dashboard de ventas.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 20px;
+      color: #1976d2;
+    }
+    p {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    select {
+      margin-top: 5px;
+      margin-bottom: 10px;
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    select[multiple] {
+      height: 120px;
+    }
+    .checkbox-group {
+      margin-top: 5px;
+      padding: 10px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .checkbox-group label {
+      display: inline-block;
+      margin: 5px 15px 5px 0;
+      font-weight: normal;
+      font-size: 14px;
+    }
+    .checkbox-group input[type="checkbox"] {
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+    button {
+      margin-top: 20px;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #1565c0;
+    }
+  </style>
+</head>
+<body>
+  <h2>📊 Filtro de Dashboard</h2>
+  <p><strong>Versión:</strong> 1.0.2 · <strong>Fecha:</strong> 01-abr-2025</p>
+
+  <label for="posiciones">Filtrar por posición:</label>
+  <select id="posiciones" multiple></select>
+
+  <label>Columnas a sumar:</label>
+  <div class="checkbox-group">
+    <label><input type="checkbox" name="columnas" value="Hamelyn" checked> Hamelyn</label>
+    <label><input type="checkbox" name="columnas" value="Momox"> Momox</label>
+    <label><input type="checkbox" name="columnas" value="Ammareal"> Ammareal</label>
+  </div>
+
+  <label for="color">Color de celda:</label>
+  <select id="color">
+    <option value="">(Cualquiera)</option>
+    <option value="#f4ed7c">🟡 Amarillo (#f4ed7c)</option>
+    <option value="#b3e5fc">🔵 Azul claro (#b3e5fc)</option>
+  </select>
+
+  <button onclick="filtrar()">🔍 Filtrar y volcar</button>
+
+  <script>
+    // Cargar las posiciones en el select
+    function cargarPosiciones(posiciones) {
+      const select = document.getElementById("posiciones");
+      posiciones.forEach(pos => {
+        const option = document.createElement("option");
+        option.value = pos;
+        option.textContent = pos;
+        select.appendChild(option);
+      });
+    }
+
+    // Función para filtrar y enviar los datos al script
+    function filtrar() {
+      const posiciones = Array.from(document.getElementById("posiciones").selectedOptions).map(opt => opt.value);
+      const columnas = Array.from(document.querySelectorAll("input[name='columnas']:checked")).map(cb => cb.value);
+      const color = document.getElementById("color").value;
+
+      // Validar que al menos una columna esté seleccionada
+      if (columnas.length === 0) {
+        alert("Por favor, selecciona al menos una columna para sumar.");
+        return;
+      }
+
+      google.script.run
+        .withSuccessHandler(() => {
+          // No mostrar alerta de éxito
+        })
+        .withFailureHandler((error) => {
+          alert("Error al filtrar: " + error.message);
+        })
+        .filtrarYSumar({
+          posiciones,
+          columnas,
+          color
+        });
+    }
+
+    // Cargar las posiciones al iniciar
+    google.script.run
+      .withSuccessHandler(cargarPosiciones)
+      .withFailureHandler((error) => {
+        alert("Error al cargar posiciones: " + error.message);
+      })
+      .obtenerPosiciones();
+  </script>
+</body>
+</html>
